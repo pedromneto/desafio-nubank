@@ -1,0 +1,19 @@
+### Send POST request with randon name
+POST http://localhost:8080/clientes
+Content-Type: application/json
+
+{
+  "nome": "{{$random.uuid}} - Pedro Marques de Morais Neto"
+}
+
+### Send POST request without name
+POST http://localhost:8080/clientes
+Content-Type: application/json
+
+{
+  "nome": ""
+}
+
+### Send POST request without parameters
+POST http://localhost:8080/clientes
+Content-Type: application/json
