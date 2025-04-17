@@ -1,0 +1,12 @@
+### GET request to get client by id
+GET http://localhost:8080/clientes/1
+Content-Type: application/json
+
+
+### GET request to get client using wrong long id
+GET http://localhost:8080/clientes/100203
+Content-Type: application/json
+
+### GET request to get client using wrong id
+GET http://localhost:8080/clientes/wieo
+Content-Type: application/json
