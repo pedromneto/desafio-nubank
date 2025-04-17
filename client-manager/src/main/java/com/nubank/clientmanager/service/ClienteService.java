@@ -4,7 +4,6 @@ import com.nubank.clientmanager.controller.dto.response.ClienteResponse;
 import com.nubank.clientmanager.controller.dto.request.ClienteRequest;
 import com.nubank.clientmanager.repository.ClienteRepository;
 import com.nubank.clientmanager.repository.entity.ClienteEntity;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -45,12 +44,10 @@ public class ClienteService {
 
     public Optional<ClienteResponse> obterCliente(Long id) {
         return clienteRepository.findById(id)
-                .map(cliente ->{
-                    return ClienteResponse.builder()
-                            .id(cliente.getId())
-                            .nome(cliente.getNome())
-                            .build();
-                });
+                .map(cliente -> ClienteResponse.builder()
+                        .id(cliente.getId())
+                        .nome(cliente.getNome())
+                        .build());
     }
 
 }

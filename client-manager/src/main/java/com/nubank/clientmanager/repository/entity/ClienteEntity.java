@@ -2,12 +2,13 @@ package com.nubank.clientmanager.repository.entity;
 
 import jakarta.persistence.*;
 import lombok.*;
-import org.springframework.hateoas.RepresentationModel;
+
 
 @Entity
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
+@Getter
 @Table(name = "cliente")
 public class ClienteEntity  {
     @Getter
