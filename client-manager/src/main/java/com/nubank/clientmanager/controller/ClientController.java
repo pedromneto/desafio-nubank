@@ -1,7 +1,11 @@
 package com.nubank.clientmanager.controller;
 
+import com.nubank.clientmanager.controller.dto.error.ErrorResponse;
 import com.nubank.clientmanager.controller.dto.request.ClienteRequest;
+import com.nubank.clientmanager.controller.dto.request.ContatoRequest;
 import com.nubank.clientmanager.controller.dto.response.ClienteResponse;
+import com.nubank.clientmanager.controller.dto.response.ContatoResponse;
+import com.nubank.clientmanager.exception.ClienteNaoEncontradoException;
 import com.nubank.clientmanager.service.ClienteService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.ArraySchema;
@@ -40,7 +44,7 @@ public class ClientController {
                     schema = @Schema(implementation = ClienteResponse.class)
                     )
             })
-    @ApiResponse(responseCode = "403", description = "Parametros informados são inválidos")
+    @ApiResponse(responseCode =  "400", description = "Parametros informados são inválidos")
     @ApiResponse(responseCode = "500", description = "Erro interno ao processar a mensagem")
     public ResponseEntity<?>  cadastrarCliente(@Valid @RequestBody ClienteRequest clienteRequest, UriComponentsBuilder uriBuilder) {
         var novoCliente = clienteService.cadastrarCliente(clienteRequest);
@@ -73,11 +77,70 @@ public class ClientController {
             )
     })
     @ApiResponse(responseCode = "400", description = "Parametros informados são inválidos")
-    @ApiResponse(responseCode = "404", description = "Cliente não encontrado para id informado")
+    @ApiResponse(responseCode = "404", description = "Cliente não encontrado",
+            content = {
+                    @Content(
+                            mediaType = MediaType.APPLICATION_JSON_VALUE,
+                            schema = @Schema(implementation = ErrorResponse.class)
+                    ),
+
+            })
     @ApiResponse(responseCode = "500", description = "Erro interno ao processar a mensagem")
     public ResponseEntity<?> buscarCliente(@Valid @PathVariable Long id) {
         var cliente = clienteService.obterCliente(id)
-                .orElseThrow(()-> new ResponseStatusException(HttpStatus.NOT_FOUND,"Cliente não encontrado" ));
+                .orElseThrow(()-> new ClienteNaoEncontradoException("Cliente não encontrado" ));
         return ResponseEntity.ok(cliente);
     }
+
+    @PostMapping(path="/{id}/contatos")
+    @Operation(summary="Salva um novo contato", description = "Faz o cadastro de um novo contato para o cliente informado")
+    @ApiResponse(responseCode = "201",
+            description = "Contato salvo com sucesso",
+            content = {
+                    @Content(
+                            mediaType = MediaType.APPLICATION_JSON_VALUE
+                    )
+            })
+    @ApiResponse(responseCode = "400", description = "Parametros informados são inválidos")
+    @ApiResponse(responseCode = "404", description = "Cliente não encontrado",
+            content = {
+                    @Content(
+                            mediaType = MediaType.APPLICATION_JSON_VALUE,
+                            schema = @Schema(implementation = ErrorResponse.class)
+                    ),
+
+            })
+    @ApiResponse(responseCode = "500", description = "Erro interno ao processar a mensagem")
+    public ResponseEntity<?>  adicionarContato(@Valid @PathVariable Long id, @Valid @RequestBody ContatoRequest contatoRequest,  UriComponentsBuilder uriBuilder) {
+            clienteService.adicionarContatoAoCliente(id, contatoRequest);
+            var uri = uriBuilder.path("/clientes/{id}/contatos").buildAndExpand(id).toUri();
+            return ResponseEntity.created(uri).build();
+
+    }
+
+    @GetMapping(path="/{id}/contatos")
+    @Operation(summary="Contatos de um cliente", description = "Exibe a listagem de contatos por cliente")
+    @ApiResponse(responseCode = "200",
+            description = "Listagem de contatos",
+            content = {
+                    @Content(
+                            mediaType = MediaType.APPLICATION_JSON_VALUE
+                    )
+            })
+    @ApiResponse(responseCode = "400", description = "Parametros informados são inválidos")
+    @ApiResponse(responseCode = "404", description = "Cliente não encontrado",
+            content = {
+                    @Content(
+                            mediaType = MediaType.APPLICATION_JSON_VALUE,
+                            array = @ArraySchema(schema = @Schema(implementation = ContatoResponse.class))
+                    ),
+
+            })
+    @ApiResponse(responseCode = "500", description = "Erro interno ao processar a mensagem")
+    public ResponseEntity<?>  listarContatos(@Valid @PathVariable Long id,  UriComponentsBuilder uriBuilder) {
+        var contatos = clienteService.listarContatos(id);
+        return ResponseEntity.ok().body(contatos);
+
+    }
+
 }
